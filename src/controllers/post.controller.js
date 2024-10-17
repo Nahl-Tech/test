@@ -104,6 +104,23 @@ const fetchSpecificPosts = asyncHandler(async (req, res) => {
 
 });
 
+// Fetch Post by ID
+const fetchPostById = asyncHandler(async (req, res) => {
+    const { id } = req.params; // Get post ID from URL params
+
+    // Find the post by ID
+    const postToFetch = await post.findById(id);
+
+    if (!postToFetch) {
+        throw new ApiError(404, "Post not found");
+    }
+
+    // Send the response with the found post
+    return res.status(200).json(
+        new ApiResponse(200, postToFetch, "Post fetched successfully")
+    );
+});
+
 // Delete Post by ID
 const deletePost = asyncHandler(async (req, res) => {
     const { id } = req.params; // Get post ID from URL params
@@ -178,5 +195,6 @@ export default {
     fetchPosts,
     fetchSpecificPosts,
     deletePost,
-    updatePost
+    updatePost,
+    fetchPostById
 };
