@@ -14,9 +14,10 @@ app.use(cors({
 
 // Imports Routes
 
-import userRoutes from "./routes/user.route.js";
+import userRoutes from "./routes/post.route.js";
 
-app.use("/api/v1/user", userRoutes);
+app.use("/api/v1/post", userRoutes);
+
 
 
 export default app;
