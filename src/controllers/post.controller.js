@@ -130,10 +130,53 @@ const deletePost = asyncHandler(async (req, res) => {
 });
 
 // Update Post by ID
+const updatePost = asyncHandler(async (req, res) => {
+    const { id } = req.params;
+    const { title, description, url_name, url } = req.body;
+
+    // Find the post by ID
+    const postToUpdate = await post.findById(id);
+
+    if (!postToUpdate) {
+        throw new ApiError(404, "Post not found");
+    }
+
+    let updatedData = { title, description, url_name, url };
+
+    // If a new image is uploaded, delete the old one and upload the new one
+    if (req.file) {
+        const localFilePath = req.file.path;
+
+        // Delete old image from Cloudinary
+        if (postToUpdate.image) {
+            await deleteFromCloudinary(postToUpdate.image);
+        }
+
+        // Upload the new image to Cloudinary
+        const uploadResponse = await uploadOnCloudinary(localFilePath);
+
+        if (!uploadResponse) {
+            throw new ApiError(500, "Image upload failed");
+        }
+
+        // Add new image URL to the update data
+        updatedData.image = uploadResponse.secure_url;
+    }
+
+    // Update the post in the database
+    const updatedPost = await post.findByIdAndUpdate(id, updatedData, { new: true });
+
+    return res.status(200).json(
+        new ApiResponse(200, updatedPost, "Post updated successfully")
+    );
+});
+
+
 
 export default {
     insertpost,
     fetchPosts,
     fetchSpecificPosts,
-    deletePost
+    deletePost,
+    updatePost
 };

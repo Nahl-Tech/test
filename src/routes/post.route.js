@@ -8,6 +8,8 @@ route.post('/', upload.single('image'), userController.insertpost);
 route.get('/', userController.fetchPosts);
 route.get('/specific', userController.fetchSpecificPosts);
 route.delete('/:id', userController.deletePost)
+route.put('/:id', upload.single('image'), userController.updatePost);
+
 
 
 export default route;
