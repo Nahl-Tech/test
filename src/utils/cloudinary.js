@@ -41,4 +41,24 @@ const uploadOnCloudinary = async (localFilePath) => {
     }
 };
 
-export { uploadOnCloudinary };
+// Delete Image from Cloudinary
+const deleteFromCloudinary = async (imageUrl) => {
+    try {
+        if (!imageUrl) throw new ApiError(400, "No image URL provided");
+
+        // Extract public ID from the image URL
+        const publicId = imageUrl.split("/").pop().split(".")[0];
+
+        // Delete the image from Cloudinary
+        await cloudinary.uploader.destroy(publicId);
+
+        return true;
+    } catch (error) {
+        console.error("Cloudinary Deletion Error:", error);
+
+        // Throw an ApiError with detailed information
+        throw new ApiError(500, "Image deletion failed on Cloudinary", [error.message]);
+    }
+};
+
+export { uploadOnCloudinary, deleteFromCloudinary };

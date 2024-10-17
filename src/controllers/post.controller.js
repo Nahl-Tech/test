@@ -1,5 +1,5 @@
 import post from "../models/post.model.js";
-import { uploadOnCloudinary } from "../utils/cloudinary.js"; // Assuming the cloudinary file is in utils folder
+import { uploadOnCloudinary, deleteFromCloudinary } from "../utils/cloudinary.js"; // Assuming the cloudinary file is in utils folder
 import { asyncHandler } from "../utils/asyncHandler.js"; // Importing asyncHandler for error handling
 import { ApiError } from "../utils/ApiError.js"; // Importing ApiError for custom error messages
 import { ApiResponse } from "../utils/ApiResponse.js"
@@ -104,8 +104,36 @@ const fetchSpecificPosts = asyncHandler(async (req, res) => {
 
 });
 
+// Delete Post by ID
+const deletePost = asyncHandler(async (req, res) => {
+    const { id } = req.params; // Get post ID from URL params
+
+    // Find the post by ID
+    const postToDelete = await post.findById(id);
+
+    if (!postToDelete) {
+        throw new ApiError(404, "Post not found");
+    }
+
+    // Delete the image from Cloudinary if it exists
+    if (postToDelete.image) {
+        await deleteFromCloudinary(postToDelete.image);
+    }
+
+    // Delete the post from the database
+    await post.findByIdAndDelete(id);
+
+    // Return success response
+    return res.status(200).json(
+        new ApiResponse(200, {}, "Post deleted successfully")
+    );
+});
+
+// Update Post by ID
+
 export default {
     insertpost,
     fetchPosts,
-    fetchSpecificPosts
+    fetchSpecificPosts,
+    deletePost
 };
